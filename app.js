@@ -7,10 +7,13 @@ app.use(express.json());
 
 // routes
 const userRoutes = require("./routes/books")
+const authors = require("./routes/authors")
 
 // use routes if path start with /api/books
 app.use("/api/books", userRoutes);
 
+// use routes if path start with /api/authors
+app.use("/api/authors", authors);
 
 
 

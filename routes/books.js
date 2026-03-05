@@ -57,7 +57,7 @@ router.get("/:id", (req, res) => {
 
 
 /** 
- * @desc Add a new book 
+ * @desc Add a new book
  * @rout /api/books
  * @method POST
  * @access public
@@ -79,7 +79,7 @@ router.post("/", (req, res) => {
       cover:req.body.cover,
     };
     books.push(book);
-    res.status(201).send({ message: "bock added secsfuly", book });
+    res.status(201).send({ message: "bock added secsfuly" });
   
 });
 
