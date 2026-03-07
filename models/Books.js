@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const joi = require("joi");
 
 const booksShema = new mongoose.Schema(
   {
@@ -10,11 +11,8 @@ const booksShema = new mongoose.Schema(
       maxlength: 100,
     },
     author: {
-      type: String,
-      required: true,
-      trim: true,
-      minlength: 3,
-      maxlength: 100,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Books",
     },
     actor: {
       type: String,
@@ -50,7 +48,37 @@ const booksShema = new mongoose.Schema(
   },
 );
 
+function validatePostbooks(obj) {
+  const schema = joi.object({
+    name: joi.string().trim().min(3).max(200).required(),
+    actor: joi.string().trim().min(3).max(22),
+    price: joi.number().min(0).required(),
+    cover: joi.string().trim(),
+    description: joi.string().trim().required(),
+    image: joi.string().trim(),
+    publishYear: joi.number().required(),
+    author: joi.string().trim().min(3).max(200).required(),
+  });
+  return schema.validate(obj);
+}
+
+function validateUpdateBooks(obj) {
+  const schema = joi.object({
+    name: joi.string().trim().min(3).max(200).required(),
+    actor: joi.string().trim().min(3).max(200).required(),
+    price: joi.number().min(0).required(),
+    cover: joi.string().trim(),
+    description: joi.string().trim().required(),
+    image: joi.string().trim(),
+    publishYear: joi.number().required(),
+    author: joi.string().trim().min(3).max(200).required(),
+  });
+  return schema.validate(obj);
+}
+
 const book = mongoose.model("book", booksShema);
 module.exports = {
   book,
+  validateUpdateBooks,
+  validatePostbooks,
 };
