@@ -1,13 +1,14 @@
 const express = require("express");
 const asyncHandler = require("express-async-handler");
-const joi = require("joi");
+const router = express.Router();
+
 const {
   book,
   validatePostbooks,
   validateUpdateBooks,
 } = require("../models/Books");
 
-const router = express.Router();
+
 
 /**
  * @desc Get all books
@@ -76,7 +77,7 @@ router.post(
     const result = await Book.save();
 
     res.status(201).json(result);
-    es.status(500).send("something went wrong");
+  
   }),
 );
 
