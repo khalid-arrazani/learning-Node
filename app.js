@@ -23,6 +23,7 @@ app.use(logger);
 const userRoutes = require("./routes/books");
 const authors = require("./routes/authors");
 const authPath = require("./routes/auth");
+const users =require ("./routes/user")
 
 
 // use routes if path start with /api/books
@@ -33,6 +34,9 @@ app.use("/api/authors", authors);
 
 // use routes if path start with /api/auth
 app.use("/api/auth", authPath);
+
+// use routes if path start with /api/user
+app.use("/api/users", users);
 
 //Error Handler Middleware
 app.use(notFound)

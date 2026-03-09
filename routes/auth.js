@@ -77,11 +77,7 @@ router.post("/login",asyncHandler(async(req,res)=>{
 }))
 
 
-/**
- * @desc Update User
- * @rout /api/auth/updateUser
- * @method PUT
- * @access public
- */
+
+
 
 module.exports=router
