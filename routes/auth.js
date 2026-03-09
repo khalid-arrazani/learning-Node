@@ -49,10 +49,7 @@ router.post("/register",asyncHandler(async(req,res)=>{
  * @access public
  */
 router.post("/login",asyncHandler(async(req,res)=>{ 
-
-    console.log(req.body) 
  const {error} = validateLoginUser(req.body);
-
 
  if (error){
     return res.status(400).json({message:error.details[0].message});
@@ -64,6 +61,7 @@ router.post("/login",asyncHandler(async(req,res)=>{
     return res.status(400).json({message:'invalid email or password'})
  };
  const isPasswordMatch = await bcrypt.compare(req.body.password,user.password);
+ 
  if(!isPasswordMatch){
     return res.status(400).json({message:'invalid email or password'})
  };
