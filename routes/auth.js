@@ -1,13 +1,13 @@
 const express = require("express");
 const asyncHandler = require("express-async-handler");
-const { required } = require("joi");
+
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 const dotenv = require("dotenv");
 dotenv.config();
 
-const {User,validateUpdateUser,validateLoginUser,validateRegisterUser} = require("../models/User")
+const {User,validateLoginUser,validateRegisterUser} = require("../models/User")
 
 /**
  * @desc Register User
@@ -70,7 +70,9 @@ router.post("/login",asyncHandler(async(req,res)=>{
  };
 
  const token = JWT.sign({id:user._id,username:user.username},process.env.JWT_SECRET_KEY);
+
  const {password,...other} = user._doc;
+ 
 
  res.status(200).json({...other, token})
 
