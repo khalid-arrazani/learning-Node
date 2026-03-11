@@ -8,6 +8,10 @@ const {
   validateUpdateBooks,
 } = require("../models/Books");
 
+const {
+  verifyTokenAndAdmin,
+} = require("../middlewares/verifyToken");
+
 
 
 /**
@@ -58,7 +62,7 @@ router.get(
 
 // add new book
 router.post(
-  "/",
+  "/",verifyTokenAndAdmin,
   asyncHandler(async (req, res) => {
     const { error } = validatePostbooks(req.body);
     if (error) {
@@ -89,7 +93,7 @@ router.post(
  */
 
 router.put(
-  "/:id",
+  "/:id",verifyTokenAndAdmin,
   asyncHandler(async (req, res) => {
     const { error } = validateUpdateBooks(req.body);
     if (error) {
@@ -117,7 +121,7 @@ router.put(
  * @access public
  */
 
-router.delete("/:id", asyncHandler(
+router.delete("/:id", verifyTokenAndAdmin,asyncHandler(
  async (req, res) => {
  
     const Book = await book.findByIdAndDelete(req.params.id);

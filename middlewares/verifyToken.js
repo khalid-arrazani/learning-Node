@@ -1,10 +1,14 @@
   const JWT = require("jsonwebtoken");
   const dotenv = require("dotenv");
 
+
+
   function verifyToken(req, res, next){
+    
     const token =req.headers.token;
     if(token){
-    try{
+
+    try{console.log('5655')
         const decoded = JWT.verify(token,process.env.JWT_SECRET_KEY)
         req.user = decoded
         next()
@@ -16,6 +20,36 @@
         }
   }
 
+
+
+  //verifyToken & Authorize the user 
+  function verifyTokenAndAuthorization(req, res, next){
+    verifyToken(req, res, ()=>{
+          if(req.params.id===req.user.id ||req.user.isAdmin){
+           next()
+    }else{
+           return res.status(403)//forbidden 
+      .json({message:"you are not allowed"})
+    }
+    })
+  }
+
+
+
+    //verifyToken & admin 
+  function verifyTokenAndAdmin(req, res, next){
+     
+    verifyToken(req, res, ()=>{
+          if(req.user.isAdmin){
+           next()
+    }else{
+           return res.status(403)//forbidden 
+      .json({message:"you are not allowed,only admin allowed"})
+    }
+    })
+  }
   module.exports= {
     verifyToken,
+    verifyTokenAndAuthorization,
+    verifyTokenAndAdmin
   }

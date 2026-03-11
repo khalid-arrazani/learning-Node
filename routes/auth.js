@@ -35,8 +35,7 @@ router.post("/register",asyncHandler(async(req,res)=>{
  user = new User({
     email:req.body.email,
     username:req.body.username,
-    password: req.body.password,
-    isAdmin:req.body.isAdmin
+    password: req.body.password
  })
  const result = await user.save()
  const token = JWT.sign({id:user._id,username:user.username},process.env.JWT_SECRET_KEY);
@@ -51,6 +50,7 @@ router.post("/register",asyncHandler(async(req,res)=>{
  * @method POST
  * @access public
  */
+
 router.post("/login",asyncHandler(async(req,res)=>{ 
  const {error} = validateLoginUser(req.body);
 
@@ -69,11 +69,10 @@ router.post("/login",asyncHandler(async(req,res)=>{
     return res.status(400).json({message:'invalid email or password'})
  };
 
- const token = JWT.sign({id:user._id,username:user.username},process.env.JWT_SECRET_KEY);
+ const token = JWT.sign({id:user._id,isAdmin:user.isAdmin},process.env.JWT_SECRET_KEY);
 
  const {password,...other} = user._doc;
  
-
  res.status(200).json({...other, token})
 
 }))
