@@ -3,8 +3,9 @@ const router = express.Router();
 const joi = require("joi");
 const { Author } = require("../models/Authors");
 const asyncHandler = require("express-async-handler");
+
 const {
-  verifyTokenAndAdmin,
+  verifyTokenAndAdmin,AddAuother,UpdateAuother
 } = require("../middlewares/verifyToken");
 
 
@@ -46,7 +47,7 @@ router.get("/:id",asyncHandler( async (req, res) => {
  * @desc Add a new auother
  * @route /api/authors
  * @method post
- * @access public
+ * @access private (only admin)
  */
 
 // add new auother
@@ -78,7 +79,7 @@ router.post("/",  verifyTokenAndAdmin,asyncHandler( async (req, res) => {
  * @desc Update auother by id
  * @route /api/authors/:id
  * @method PUT
- * @access public
+ * @access private (only admin)
  */
 
 // update auother by id
@@ -107,6 +108,12 @@ router.put("/:id",  verifyTokenAndAdmin,asyncHandler (async (req, res) => {
 }));
 
 
+/**
+ * @desc delete auother
+ * @route /api/authors/:id
+ * @method deleted
+ * @access private (only admin)
+ */
 
 // delete auother by id
 
@@ -123,33 +130,5 @@ router.delete("/:id",  verifyTokenAndAdmin,asyncHandler( async(req, res) => {
 
 }));
 
-
-
-// validation functions
-
-// validation function for add auother
-function AddAuother(obj) {
-  const schema = joi.object({
-    firstName: joi.string().trim().min(3).max(10),
-    lastName: joi.string().trim().min(3).max(20),
-    nationality: joi.string().trim().min(3).max(20),
-    phone: joi.string().required(),
-    work: joi.string().trim().min(3).max(30),
-    image: joi.string().trim(),
-  });
-  return schema.validate(obj);
-}
-// validation function for update auother
-function UpdateAuother(obj) {
-  const schema = joi.object({
-    firstName: joi.string().trim().min(3).max(10),
-    lastName: joi.string().trim().min(3).max(20),
-    nationality: joi.string().trim().min(3).max(20),
-    phone: joi.string(),
-    work: joi.string().trim().min(3).max(30),
-    image: joi.string().trim(),
-  });
-  return schema.validate(obj);
-}
 
 module.exports = router;

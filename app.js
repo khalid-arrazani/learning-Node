@@ -1,42 +1,34 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
+const dotenv = require("dotenv").config();
 const  logger  = require("./middlewares/logger");
 const {notFound,errorHandler} = require('./middlewares/errors')
-dotenv.config();
+const connectToDB = require("./config/db")
+
 
 //connection To DataBase
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("Connection To mongoDB..."))
-  .catch((error) => console.log("Connection Failed  To mongoDB...", error));
+connectToDB();
+
 const app = express();
 
 // middlewares
-app.use(express.json());
+app.use(express.json()); 
 
 app.use(logger);
 
 
 
-// routes
-const userRoutes = require("./routes/books");
-const authors = require("./routes/authors");
-const authPath = require("./routes/auth");
-const users =require ("./routes/user")
-
-
 // use routes if path start with /api/books
-app.use("/api/books", userRoutes);
+app.use("/api/books", require("./routes/books"));
 
 // use routes if path start with /api/authors
-app.use("/api/authors", authors);
+app.use("/api/authors", require("./routes/authors"));
 
 // use routes if path start with /api/auth
-app.use("/api/auth", authPath);
+app.use("/api/auth", require("./routes/auth"));
 
 // use routes if path start with /api/user
-app.use("/api/users", users);
+app.use("/api/users", require ("./routes/user"));
 
 //Error Handler Middleware
 app.use(notFound)
