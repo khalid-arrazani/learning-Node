@@ -3,80 +3,62 @@ const joi = require("joi");
 
 const booksShema = new mongoose.Schema(
   {
-    name: {
+    title: {
       type: String,
       required: true,
       trim: true,
       minlength: 3,
-      maxlength: 100,
+      maxlength: 250,
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Books",
-    },
-    actor: {
-      type: String,
       required: true,
-      trim: true,
-      minlength: 3,
-      maxlength: 100,
-      default: "Not applicable",
-    },
-    price: {
-      type: Number,
-      minlength: 1,
-      required: true,
+      ref: "Author",
     },
     description: {
       type: String,
       required: true,
       trim: true,
-      minlength: 10,
-      maxlength: 500,
+      minlength: 5,
     },
-    publishYear: {
+    price: {
       type: Number,
       required: true,
+      min: 0,
     },
-    image: {
+    cover: {
       type: String,
-      default: "default-book.png",
+      required: true,
+      enum: ["soft cover", "hard cover"],
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true }
 );
 
 function validatePostbooks(obj) {
-  const schema = joi.object({
-    name: joi.string().trim().min(3).max(200).required(),
-    actor: joi.string().trim().min(3).max(22),
-    price: joi.number().min(0).required(),
-    cover: joi.string().trim(),
-    description: joi.string().trim().required(),
-    image: joi.string().trim(),
-    publishYear: joi.number().required(),
-    author: joi.string().trim().min(3).max(200).required(),
+  const schema = Joi.object({
+    title: Joi.string().trim().min(3).max(250).required(),
+    author: Joi.string().required(),
+    description: Joi.string().trim().min(5).required(),
+    price: Joi.number().min(0).required(),
+    cover: Joi.string().valid("soft cover", "hard cover").required(),
   });
   return schema.validate(obj);
 }
 
 function validateUpdateBooks(obj) {
-  const schema = joi.object({
-    name: joi.string().trim().min(3).max(200).required(),
-    actor: joi.string().trim().min(3).max(200).required(),
-    price: joi.number().min(0).required(),
-    cover: joi.string().trim(),
-    description: joi.string().trim().required(),
-    image: joi.string().trim(),
-    publishYear: joi.number().required(),
-    author: joi.string().trim().min(3).max(200).required(),
+  const schema = Joi.object({
+    title: Joi.string().trim().min(3).max(250),
+    author: Joi.string(),
+    description: Joi.string().trim().min(5),
+    price: Joi.number().min(0),
+    cover: Joi.string().valid("soft cover", "hard cover"),
   });
   return schema.validate(obj);
 }
 
 const book = mongoose.model("book", booksShema);
+
 module.exports = {
   book,
   validateUpdateBooks,

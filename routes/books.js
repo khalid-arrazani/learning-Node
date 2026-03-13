@@ -8,11 +8,7 @@ const {
   validateUpdateBooks,
 } = require("../models/Books");
 
-const {
-  verifyTokenAndAdmin,
-} = require("../middlewares/verifyToken");
-
-
+const { verifyTokenAndAdmin } = require("../middlewares/verifyToken");
 
 /**
  * @desc Get all books
@@ -62,55 +58,62 @@ router.get(
 
 // add new book
 router.post(
-  "/",verifyTokenAndAdmin,
+  "/",
+  verifyTokenAndAdmin,
   asyncHandler(async (req, res) => {
+    
     const { error } = validatePostbooks(req.body);
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
 
     const Book = new book({
-      name: req.body.name,
-      actor: req.body.actor,
-      price: req.body.price,
+      title: req.body.title,
       author: req.body.author,
       description: req.body.description,
-      publishYear: req.body.publishYear,
-      image: req.body.image,
+      price: req.body.price,
+      cover: req.body.cover,
     });
     const result = await Book.save();
 
     res.status(201).json(result);
-  
   }),
 );
 
 /**
  * @desc Update book by id
- * @rout /api/books
+ * @rout /api/books/:id
  * @method PUT
  * @access public
  */
 
 router.put(
-  "/:id",verifyTokenAndAdmin,
+  "/:id",
+  verifyTokenAndAdmin,
   asyncHandler(async (req, res) => {
     const { error } = validateUpdateBooks(req.body);
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const Book = await book.findByIdAndUpdate(
-      req.params.id,
+   const updateData = {};
 
-      req.body,
+    if (req.body.title) updateData.title = req.body.title;
+    if (req.body.author) updateData.author = req.body.author;
+    if (req.body.description) updateData.description = req.body.description;
+    if (req.body.price) updateData.price = req.body.price;
+    if (req.body.cover) updateData.cover = req.body.cover;
+
+    const updatedBook = await Book.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
       { returnDocument: "after" },
     );
 
-    if (!Book) {
-      return res.status(404).send({ message: "bock not fouand" });
+    if (!updatedBook) {
+      return res.status(404).json({ message: "Book not found" });
     }
-    res.status(200).json(Book);
+    res.status(200).json(updatedBook);
   }),
 );
 
@@ -121,17 +124,18 @@ router.put(
  * @access public
  */
 
-router.delete("/:id", verifyTokenAndAdmin,asyncHandler(
- async (req, res) => {
- 
+router.delete(
+  "/:id",
+  verifyTokenAndAdmin,
+  asyncHandler(async (req, res) => {
     const Book = await book.findByIdAndDelete(req.params.id);
     if (!Book) {
       res.status(404).send({ message: "bock not found" });
 
       res.status(200).json({ message: "book deleted successfully" });
     }
- 
-}));
+  }),
+);
 
 // export router
 module.exports = router;

@@ -50,8 +50,6 @@ function AddAuother(obj) {
     firstName: joi.string().trim().min(3).max(10),
     lastName: joi.string().trim().min(3).max(20),
     nationality: joi.string().trim().min(3).max(20),
-    phone: joi.string().required(),
-    work: joi.string().trim().min(3).max(30),
     image: joi.string().trim(),
   });
   return schema.validate(obj);
@@ -63,8 +61,6 @@ function UpdateAuother(obj) {
     firstName: joi.string().trim().min(3).max(10),
     lastName: joi.string().trim().min(3).max(20),
     nationality: joi.string().trim().min(3).max(20),
-    phone: joi.string(),
-    work: joi.string().trim().min(3).max(30),
     image: joi.string().trim(),
   });
   return schema.validate(obj);

@@ -5,7 +5,12 @@ const { Author } = require("../models/Authors");
 const asyncHandler = require("express-async-handler");
 
 const {
-  verifyTokenAndAdmin,AddAuother,UpdateAuother
+AddAuother,UpdateAuother
+} = require("../models/Authors");
+
+
+const {
+  verifyTokenAndAdmin
 } = require("../middlewares/verifyToken");
 
 
@@ -64,8 +69,6 @@ router.post("/",  verifyTokenAndAdmin,asyncHandler( async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       nationality: req.body.nationality,
-      phone: req.body.phone,
-      work: req.body.work,
       image: req.body.image,
     });
 
@@ -89,14 +92,10 @@ router.put("/:id",  verifyTokenAndAdmin,asyncHandler (async (req, res) => {
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
   }
-
-
  const auther =await Author.findByIdAndUpdate(req.params.id,{
         firstName: req.body.firstName,
       lastName: req.body.lastName,
       nationality: req.body.nationality,
-      phone: req.body.phone,
-      work: req.body.work,
       image: req.body.image,
  },{new: true});
 
