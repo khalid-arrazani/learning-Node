@@ -104,7 +104,7 @@ router.put(
     if (req.body.price) updateData.price = req.body.price;
     if (req.body.cover) updateData.cover = req.body.cover;
 
-    const updatedBook = await Book.findByIdAndUpdate(
+    const updatedBook = await book.findByIdAndUpdate(
       req.params.id,
       { $set: updateData },
       { returnDocument: "after" },

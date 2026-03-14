@@ -8,7 +8,7 @@
     const token =req.headers.token;
     if(token){
 
-    try{console.log('5655')
+    try{
         const decoded = JWT.verify(token,process.env.JWT_SECRET_KEY)
         req.user = decoded
         next()

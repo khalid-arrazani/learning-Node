@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const joi = require("joi");
+
 const { Author } = require("../models/Authors");
 const asyncHandler = require("express-async-handler");
 
@@ -92,17 +92,23 @@ router.put("/:id",  verifyTokenAndAdmin,asyncHandler (async (req, res) => {
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
   }
- const auther =await Author.findByIdAndUpdate(req.params.id,{
-        firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      nationality: req.body.nationality,
-      image: req.body.image,
- },{new: true});
+    const updateData = {};
 
-  if (!auther) {
+    if (req.body.firstName) updateData.firstName = req.body.firstName;
+    if (req.body.lastName) updateData.lastName = req.body.lastName;
+    if (req.body.nationality) updateData.nationality = req.body.nationality;
+    if (req.body.image) updateData.image = req.body.image;
+
+ const updatedAuthor = await Author.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { returnDocument: "after" },
+    );
+
+  if (!updatedAuthor) {
    return res.status(404).send({ message: "auother not found" });
   };
-  res.json(auther);
+  res.json(updatedAuthor);
 
 }));
 
@@ -124,7 +130,7 @@ router.delete("/:id",  verifyTokenAndAdmin,asyncHandler( async(req, res) => {
       return res.status(404).json({ message: "Author not found" });
     }
 
-    res.json({ message: "Author deleted" });
+    res.json({ message: "Author deleted seccessfuly" });
 
 
 }));

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const joi = require("joi");
 const AuthorSchema = new mongoose.Schema(
   {
     firstName: {
@@ -17,17 +17,6 @@ const AuthorSchema = new mongoose.Schema(
       maxlength: 100,
     },
     nationality: {
-      type: String,
-      required: true,
-      trim: true,
-      minlength: 3,
-      maxlength: 100,
-    },
-    phone: {
-      type: String,
-      required: true,
-    },
-    work: {
       type: String,
       required: true,
       trim: true,
