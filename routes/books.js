@@ -21,11 +21,27 @@ const { verifyTokenAndAdmin } = require("../middlewares/verifyToken");
 router.get(
   "/",
   asyncHandler(async (req, res) => {
-    const Book = await book.find();
-    if (Book.length === 0) {
+    const { minPrice, maxPrice } = req.query;
+    let books;
+    if (minPrice && maxPrice) {
+      books=await book.find({price:{$gte:minPrice, $lte:maxPrice}})
+      .populate("author", ["firstName", "lastName"]);
+    }else if (minPrice){
+      books=await book.find({price:{$gte:minPrice}})
+      .populate("author", ["firstName", "lastName"]);
+    } else if (maxPrice){
+      books=await book.find({price:{$lte:maxPrice}})
+      .populate("author", ["firstName", "lastName"]);
+    }else {
+      books = await book.find()
+      .populate("author", ["firstName", "lastName"]);
+    }
+
+  
+    if (books.length === 0) {
       res.status(404).json({ message: "No books found" });
     }
-    res.status(200).json(Book);
+    res.status(200).json(books);
   }),
 );
 
@@ -40,7 +56,7 @@ router.get(
 router.get(
   "/:id",
   asyncHandler(async (req, res) => {
-    const Book = await book.findById(req.params.id);
+    const Book = await book.findById(req.params.id).populate("author");
     console.log(Book);
     if (Book == null) {
       res.status(404).send({ Message: "book not found" });
@@ -61,7 +77,6 @@ router.post(
   "/",
   verifyTokenAndAdmin,
   asyncHandler(async (req, res) => {
-    
     const { error } = validatePostbooks(req.body);
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
@@ -96,7 +111,7 @@ router.put(
       return res.status(400).json({ message: error.details[0].message });
     }
 
-   const updateData = {};
+    const updateData = {};
 
     if (req.body.title) updateData.title = req.body.title;
     if (req.body.author) updateData.author = req.body.author;

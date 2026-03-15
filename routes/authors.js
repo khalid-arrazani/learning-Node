@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-const { Author } = require("../models/Authors");
+const { Author, AddAuother,UpdateAuother} = require("../models/Authors");
+
 const asyncHandler = require("express-async-handler");
 
-const {
-AddAuother,UpdateAuother
-} = require("../models/Authors");
+
+
 
 
 const {
