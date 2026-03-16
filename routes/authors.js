@@ -23,10 +23,11 @@ const {
 
 // get all authors
 router.get("/",asyncHandler( async (req, res) => {
-
-    const authors = await Author.find();
+    const limit = 2
+    const authors = await Author.find()
+        .skip((req.query.pageNum-1)*2).limit(limit);
     res.status(200).json(authors);
-
+ 
 }));
 
 /**
