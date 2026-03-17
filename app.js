@@ -13,9 +13,8 @@ const app = express();
 
 // middlewares
 app.use(express.json()); 
-
 app.use(logger);
-
+app.set('view engine','ejs')
 
 
 // use routes if path start with /api/books
@@ -29,6 +28,10 @@ app.use("/api/auth", require("./routes/auth"));
 
 // use routes if path start with /api/user
 app.use("/api/users", require ("./routes/user"));
+
+// use routes for reset password
+app.use("/password", require("./routes/password"))
+
 
 //Error Handler Middleware
 app.use(notFound)

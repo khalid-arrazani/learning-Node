@@ -3,11 +3,11 @@ const router = express.Router();
 
 const {
   getAllAuthors,
-  getAuthorById,
-  createAuthor,
-  updateAuthor,
-  deleteAuthor,
-} = require("../controllers/authorsController");
+  addAuthor,
+  getIdAuthors,
+  updateAuothors,
+  deleteAuthors,
+} = require("../controller/authersController");
 
 const { verifyTokenAndAdmin } = require("../middlewares/verifyToken");
 
@@ -23,27 +23,27 @@ router.get("/", getAllAuthors);
  * @route GET /api/authors/:id
  * @access public
  */
-router.get("/:id", getAuthorById);
+router.get("/:id", getIdAuthors);
 
 /**
  * @desc Create new author
  * @route POST /api/authors
  * @access private (Admin)
  */
-router.post("/", verifyTokenAndAdmin, createAuthor);
+router.post("/", verifyTokenAndAdmin, addAuthor);
 
 /**
  * @desc Update author
  * @route PUT /api/authors/:id
  * @access private (Admin)
  */
-router.put("/:id", verifyTokenAndAdmin, updateAuthor);
+router.put("/:id", verifyTokenAndAdmin, updateAuothors);
 
 /**
  * @desc Delete author
  * @route DELETE /api/authors/:id
  * @access private (Admin)
  */
-router.delete("/:id", verifyTokenAndAdmin, deleteAuthor);
+router.delete("/:id", verifyTokenAndAdmin, deleteAuthors);
 
 module.exports = router;

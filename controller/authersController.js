@@ -6,7 +6,7 @@ const asyncHandler = require("express-async-handler");
 //===================================================================================/
 // get all authors
 
-const GetAllAuthors = asyncHandler(async (req, res) => {
+const getAllAuthors = asyncHandler(async (req, res) => {
   const limit = 2;
   const page = req.query.pageNum || 1;
   const authors = await Author.find()
@@ -19,7 +19,7 @@ const GetAllAuthors = asyncHandler(async (req, res) => {
 //===================================================================================/
 // get author by id
 
-const GetIdAuthors = asyncHandler(async (req, res) => {
+const getIdAuthors = asyncHandler(async (req, res) => {
   const author = await Author.findById(req.params.id);
   if (!author) {
     returnres.status(404).send("auother not found ");
@@ -31,7 +31,7 @@ const GetIdAuthors = asyncHandler(async (req, res) => {
 //===================================================================================/
 // add new auother
 
-const AddAuthor = asyncHandler(async (req, res) => {
+const addAuthor = asyncHandler(async (req, res) => {
   const { error } = AddAuother(req.body);
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
@@ -53,7 +53,7 @@ const AddAuthor = asyncHandler(async (req, res) => {
 //===================================================================================/
 
 // update auother
-const UpdateAuothers = asyncHandler(async (req, res) => {
+const updateAuothors = asyncHandler(async (req, res) => {
   const { error } = UpdateAuother(req.body);
 
   if (error) {
@@ -82,7 +82,7 @@ const UpdateAuothers = asyncHandler(async (req, res) => {
 //===================================================================================/
 
 // delete auother by id
-const DeleteAuthors = asyncHandler(async (req, res) => {
+const deleteAuthors = asyncHandler(async (req, res) => {
   const author = await Author.findByIdAndDelete(req.params.id);
 
   if (!author) {
@@ -94,9 +94,9 @@ const DeleteAuthors = asyncHandler(async (req, res) => {
 //===================================================================================/
 
 module.exports = {
-  GetAllAuthors,
-  AddAuthor,
-  GetIdAuthors,
-  UpdateAuothers,
-  DeleteAuthors,
+  getAllAuthors,
+  addAuthor,
+  getIdAuthors,
+  updateAuothors,
+  deleteAuthors,
 };
