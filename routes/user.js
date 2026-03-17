@@ -1,5 +1,4 @@
 const express = require("express");
-const asyncHandler = require("express-async-handler");
 const router = express.Router();
 
 const {
@@ -7,13 +6,17 @@ const {
   verifyTokenAndAdmin,
 } = require("../middlewares/verifyToken");
 
-const bcrypt = require("bcryptjs");
-const JWT = require("jsonwebtoken");
-const dotenv = require("dotenv");
-dotenv.config();
+const {
+  updateUser,
+  getAllUsers,
+  getUserById,
+  deleteUserById,
+} = require("../controller/userController");
 
-const { User, validateUpdateUser } = require("../models/User");
 
+//=============================/* USER ROUTES * /=============================/
+
+//===========================================================================//
 /**
  * @desc update User
  * @rout /api/users/:id
@@ -21,56 +24,22 @@ const { User, validateUpdateUser } = require("../models/User");
  * @access privete(only admin and the user himself)
  */
 
-router.put(
-  "/:id",
-  verifyTokenAndAuthorization,
-  asyncHandler(async (req, res) => {
+// we can update the user by id and we can update the email, password and username
+router.put("/:id", verifyTokenAndAuthorization, updateUser);
+//===========================================================================//
 
-    const { error } = validateUpdateUser(req.body);
-
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    };
-
-    if (req.body.password) {
-      const salt = await bcrypt.genSalt(10);
-      req.body.password = await bcrypt.hash(req.body.password, salt);
-    };
-
-    const updateUser = await User.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          email: req.body.email,
-          password: req.body.password,
-          username: req.body.username,
-        },
-      },
-      { returnDocument: "after" },
-    ).select("-password");
-
-    res.status(200).json(updateUser);
-  }),
-);
-
-
+//===========================================================================//
 /**
  * @desc get all users
  * @rout /api/users/
- * @method GET
  * @access privete (only admin)
  */
 
-router.get(
-  "/",
-  verifyTokenAndAdmin,
-  asyncHandler(async (req, res) => {
-  const users = await User.find().select('-password')
-    res.status(200).json(users);
-  }), 
-);
+// we can get all users but we can't get the password of the users
+router.get("/", verifyTokenAndAdmin, getAllUsers);
+//===========================================================================//
 
-
+//===========================================================================//
 /**
  * @desc get user by id
  * @rout /api/users/:id
@@ -78,36 +47,18 @@ router.get(
  * @access privete (only admin and the user himself)
  */
 
-router.get(
-  "/:id",
-  verifyTokenAndAuthorization,
-  asyncHandler(async (req, res) => {
-  const users = await User.findById(req.params.id).select('-password')
-    res.status(200).json(users);
-  }),
-);
+// we can get user by id but we can't get the password of the user
+router.get("/:id", verifyTokenAndAuthorization, getUserById);
+//===========================================================================//
 
+//===========================================================================//
 /**
- * @desc delete user by id 
+ * @desc delete user by id
  * @rout /api/users/:id
- * @method delete
  * @access privete (only admin and the user himself)
  */
-
-router.delete(
-  "/:id",
-  verifyTokenAndAuthorization,
-  asyncHandler(async (req, res) => {
-    const user = await User.findById(req.params.id).select('-password')
-    if(user){
-  const users = await User.findByIdAndDelete(req.params.id)
-    res.status(200).json({message:'user has been deleted seccessfully'});}else{
-      res.status(404).json({message:'user not found'})
-    }
-  }),
-);
-
-
-
+// we can delete user by id but we can't get the password of the user
+router.delete("/:id", verifyTokenAndAuthorization, deleteUserById);
+//===========================================================================//
 
 module.exports = router;
