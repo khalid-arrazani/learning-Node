@@ -13,6 +13,7 @@ const app = express();
 
 // middlewares
 app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); // to parse urlencoded data
 app.use(logger);
 app.set('view engine','ejs')
 

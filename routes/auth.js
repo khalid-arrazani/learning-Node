@@ -17,7 +17,7 @@ router.post("/register", RegisterUser);
 //==============================//
 /**
  * @desc login User
- * @rout /api/auth/register
+ * @rout /api/auth/login
  * @access public
  */
 

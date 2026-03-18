@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
-
+const {User} = require("../models/User")
+  const JWT = require("jsonwebtoken");
 
 /**
  * @desc Get Forgot Password View
@@ -10,4 +11,24 @@ const asyncHandler = require("express-async-handler");
 
 module.exports.getForgotPasswordView = asyncHandler((req,res)=>{
     res.render('forgot-password')
+})
+
+
+/**
+ * @desc send Forgot Password link
+ * @route /password/fprgot-password
+ * @method post
+ * @access public
+ */
+
+module.exports.sendForgotPasswordLink = asyncHandler(async(req,res)=>{
+    const user=await User.findOne({ email:req.body.email});
+    if (!user){
+       return res.status(404).json({message:"User not found"})
+    }
+    const secret= process.env.JWT_SECRET_KEY + user.password
+    const token = JWT.sign({email:user.email , id:user.id},secret,{expiresIn: '10m'})
+    
+    const link =`http://localhost:5000/password/reser-password/${user.id}/${token}`
+     res.json({message:'Click on the link' , resetPasswordLink:link})
 })
