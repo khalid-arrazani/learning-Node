@@ -1,8 +1,9 @@
 const asyncHandler = require("express-async-handler");
-const {User} = require("../models/User")
-  const JWT = require("jsonwebtoken");
-  const dotenv = require("dotenv");
-  dotenv.config();
+const { User } = require("../models/User");
+const JWT = require("jsonwebtoken");
+const dotenv = require("dotenv");
+dotenv.config();
+const bcrypt = require("bcryptjs");
 
 /**
  * @desc Get Forgot Password View
@@ -11,10 +12,9 @@ const {User} = require("../models/User")
  * @access public
  */
 
-module.exports.getForgotPasswordView = asyncHandler((req,res)=>{
-    res.render('forgot-password')
-})
-
+module.exports.getForgotPasswordView = asyncHandler((req, res) => {
+  res.render("forgot-password");
+});
 
 /**
  * @desc send Forgot Password link
@@ -23,18 +23,19 @@ module.exports.getForgotPasswordView = asyncHandler((req,res)=>{
  * @access public
  */
 
-module.exports.sendForgotPasswordLink = asyncHandler(async(req,res)=>{
-    const user=await User.findOne({ email:req.body.email});
-    if (!user){
-       return res.status(404).json({message:"User not found"})
-    }
-    const secret= process.env.JWT_SECRET_KEY + user.password
-    const token = JWT.sign({email:user.email , id:user.id},secret,{expiresIn: '10m'})
-    
-    const link =`http://localhost:5000/password/reset-password/${user.id}/${token}`
-     res.json({message:'Click on the link' , resetPasswordLink:link})
-})
+module.exports.sendForgotPasswordLink = asyncHandler(async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  const secret = process.env.JWT_SECRET_KEY + user.password;
+  const token = JWT.sign({ email: user.email, id: user.id }, secret, {
+    expiresIn: "10m",
+  });
 
+  const link = `http://localhost:5000/password/reset-password/${user.id}/${token}`;
+  res.json({ message: "Click on the link", resetPasswordLink: link });
+});
 
 /**
  * @desc reset Password link
@@ -43,25 +44,59 @@ module.exports.sendForgotPasswordLink = asyncHandler(async(req,res)=>{
  * @access public
  */
 
-module.exports.resetPassword = asyncHandler(async(req,res)=>{
-  const token = req.params.token
-  const decoded = await JWT.decode(token)
-  const id = decoded.id
-  const user = await User.findById(id)
-  const pass = user.password
- 
-  if(!user){
+module.exports.resetPasswordLink = asyncHandler(async (req, res) => {
+  const token = req.params.token;
+  const decoded = await JWT.decode(token);
+  const id = decoded.id;
+  const user = await User.findById(id);
+  const pass = user.password;
 
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
   }
 
-  try{
-     const secret = process.env.JWT_SECRET_KEY + pass
-    const decoded = await JWT.verify(token,secret)
-  }catch (err){
-   console.log(err.message)
+  try {
+    const secret = process.env.JWT_SECRET_KEY + pass;
+    const decoded = await JWT.verify(token, secret);
+  } catch (err) {
+    console.log(err.message);
   }
+  res.render("reset-password");
+});
 
-    console.log(200)
-     res.render('forgot-password')
+/**
+ * @desc reset Password link
+ * @route /password/fprgot-password
+ * @method post
+ * @access public
+ */
 
-})
+module.exports.resetPassword = asyncHandler(async (req, res) => {
+  const token = req.params.token;
+  const decoded = await JWT.decode(token);
+  const id = decoded.id;
+  const user = await User.findById(id);
+  const pass = user.password;
+    if (req.body.password) {
+      const salt = await bcrypt.genSalt(10);
+      req.body.password = await bcrypt.hash(req.body.password, salt);
+    }
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+  }
+  try {
+    const secret = process.env.JWT_SECRET_KEY + pass;
+    const decoded = await JWT.verify(token, secret);
+  } catch (err) {
+    console.log(err.message);
+  }
+  //change the password
+   const resetPassword = await User.findByIdAndUpdate(
+    id,    {
+      $set: {
+        password: req.body.password,
+      }
+    },{ returnDocument: "after" }
+   )
+  res.status(200).render("change-sezccefully");
+});  
