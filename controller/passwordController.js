@@ -1,9 +1,13 @@
 const asyncHandler = require("express-async-handler");
 const { User } = require("../models/User");
 const JWT = require("jsonwebtoken");
-const dotenv = require("dotenv");
-dotenv.config();
+const dotenv = require("dotenv").config();
+
 const bcrypt = require("bcryptjs");
+
+const { Resend } =require( 'resend');
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * @desc Get Forgot Password View
@@ -32,8 +36,21 @@ module.exports.sendForgotPasswordLink = asyncHandler(async (req, res) => {
   const token = JWT.sign({ email: user.email, id: user.id }, secret, {
     expiresIn: "10m",
   });
+    const link = `http://localhost:5000/password/reset-password/${user.id}/${token}`;
+    
+  const mailHtml = `
+  <p>To reset your password, click the link below:</p>
+  <a href="${link}">Reset Password</a>
+`;
 
-  const link = `http://localhost:5000/password/reset-password/${user.id}/${token}`;
+
+  resend.emails.send({
+    from: 'onboarding@resend.dev',
+    to: user.email,
+    subject: "Reset Your Password",
+    html: mailHtml
+  });
+  
   res.json({ message: "Click on the link", resetPasswordLink: link });
 });
 
@@ -89,6 +106,7 @@ module.exports.resetPassword = asyncHandler(async (req, res) => {
     const decoded = await JWT.verify(token, secret);
   } catch (err) {
     console.log(err.message);
+    res.json({message:"error"})
   }
   //change the password
    const resetPassword = await User.findByIdAndUpdate(
