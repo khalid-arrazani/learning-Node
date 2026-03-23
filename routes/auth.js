@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { RegisterUser, loginUser ,getLoginView} = require("../controller/authController");
+const { RegisterUser, loginUser ,getLoginView,googleLogin,googleCallback} = require("../controller/authController");
 
 const router = express.Router();
 //==============================//
@@ -27,6 +27,10 @@ router
  .get(getLoginView)
  .post(loginUser)
  
+
+// Google login
+router.get("/google", googleLogin);
+router.get("/google/callback", googleCallback);
 //==============================//
 
 module.exports = router;

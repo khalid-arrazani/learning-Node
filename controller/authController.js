@@ -4,6 +4,54 @@ const dotenv = require("dotenv");
 dotenv.config();
 const {User,validateLoginUser,validateRegisterUser} = require("../models/User")
 
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const jwt = require("jsonwebtoken");
+
+
+
+//=============================/* GOOGLE STRATEGY * /=============================
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "/auth/google/callback",
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        let user = await User.findOne({ googleId: profile.id });
+
+        if (!user) {
+            user = await User.create({
+                googleId: profile.id,
+                username: profile.displayName,
+                email: profile.emails[0].value,
+                password: null, // لأنه Google login
+            });
+        }
+
+        return done(null, user);
+    } catch (err) {
+        return done(err, null);
+    }
+}));
+
+//=============================/* GOOGLE CONTROLLER METHODS * /====================
+const googleLogin = passport.authenticate("google", { scope: ["profile", "email"] });
+
+const googleCallback = (req, res, next) => {
+    passport.authenticate("google", { session: false }, (err, user) => {
+        if (err || !user) return res.status(401).json({ message: "Authentication failed" });
+
+        const token = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: "1d" }
+        );
+
+        // redirect للfrontend أو EJS page
+        res.redirect(`/dashboard?token=${token}`);
+    })(req, res, next);
+};
+
 
 //=============================/* AUTH CONTROLLER * /=============================/
 
@@ -78,5 +126,8 @@ getLoginView = asyncHandler((req, res) => {
 
 module.exports = {
     RegisterUser,
-    loginUser,getLoginView
+    loginUser,
+    getLoginView,
+    googleLogin,
+    googleCallback
 }

@@ -4,6 +4,7 @@ const dotenv = require("dotenv").config();
 const  logger  = require("./middlewares/logger");
 const {notFound,errorHandler} = require('./middlewares/errors')
 const connectToDB = require("./config/db")
+const passport =require("passport")
 
 
 //connection To DataBase
@@ -15,7 +16,8 @@ const app = express();
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); // to parse urlencoded data
 app.use(logger);
-app.set('view engine','ejs')
+app.set('view engine','ejs');
+app.use(passport.initialize());
 
 
 // use routes if path start with /api/books
