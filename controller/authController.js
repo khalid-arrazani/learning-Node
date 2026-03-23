@@ -64,8 +64,19 @@ const loginUser = asyncHandler(async(req,res)=>{
 
 })
 
+/**
+ * @desc Get login View
+ * @route /password/fprgot-password
+ * @method GET
+ * @access public
+ */
+
+getLoginView = asyncHandler((req, res) => {
+  res.render("login");
+});
+
 
 module.exports = {
     RegisterUser,
-    loginUser
+    loginUser,getLoginView
 }

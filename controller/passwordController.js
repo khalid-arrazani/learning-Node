@@ -51,7 +51,7 @@ module.exports.sendForgotPasswordLink = asyncHandler(async (req, res) => {
     html: mailHtml
   });
   
-  res.json({ message: "Click on the link", resetPasswordLink: link });
+  res.render("send-link")
 });
 
 /**
