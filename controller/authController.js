@@ -14,10 +14,10 @@ const jwt = require("jsonwebtoken");
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback",
+    callbackURL: "http://localhost:5000/api/auth/google/callback" ,
 }, async (accessToken, refreshToken, profile, done) => {
-    try {
-        let user = await User.findOne({ googleId: profile.id });
+    console.log(profile);    try {
+        let user = await User.findOne({ email: profile.emails[0].value });
 
         if (!user) {
             user = await User.create({
@@ -38,12 +38,20 @@ passport.use(new GoogleStrategy({
 const googleLogin = passport.authenticate("google", { scope: ["profile", "email"] });
 
 const googleCallback = (req, res, next) => {
-    passport.authenticate("google", { session: false }, (err, user) => {
+
+
+
+    passport.authenticate("google", { session: false }, (err, user,info) => {
+
+    console.log("ERROR:", err);
+    console.log("USER:", user);
+    console.log("INFO:", info);
+
         if (err || !user) return res.status(401).json({ message: "Authentication failed" });
 
         const token = jwt.sign(
             { id: user._id, email: user.email },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET_KEY,
             { expiresIn: "1d" }
         );
 
@@ -122,6 +130,7 @@ const loginUser = asyncHandler(async(req,res)=>{
 getLoginView = asyncHandler((req, res) => {
   res.render("login");
 });
+
 
 
 module.exports = {
