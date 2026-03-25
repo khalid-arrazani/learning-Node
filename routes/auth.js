@@ -20,8 +20,6 @@ router.post("/register", RegisterUser);
  * @rout /api/auth/login
  * @access public
  */
-
-router.post("/login", loginUser)
 router
  .route("/login")
  .get(getLoginView)
