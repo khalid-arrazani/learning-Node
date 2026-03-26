@@ -11,6 +11,22 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const jwt = require("jsonwebtoken");
 
+const verifyToken = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) return res.redirect("/api/auth/login");
+
+  try {
+    jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
+    console.log("decoded",decoded)
+    next();
+  } catch {
+    res.redirect("/api/auth/login");
+  }
+};
+
 //=============================/* GOOGLE STRATEGY * /=============================
 passport.use(
   new GoogleStrategy(
@@ -20,9 +36,8 @@ passport.use(
       callbackURL: "http://localhost:5000/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log("1",profile,"1");
+      console.log("1", profile, "1");
 
-      
       try {
         let user = await User.findOne({ email: profile.emails[0].value });
 
@@ -31,6 +46,7 @@ passport.use(
             googleId: profile.id,
             username: profile.displayName,
             email: profile.emails[0].value,
+            image: profile.photos[0].value,
           });
         }
 
@@ -50,19 +66,25 @@ const googleLogin = passport.authenticate("google", {
 const googleCallback = (req, res, next) => {
   passport.authenticate("google", { session: false }, (err, user, info) => {
     console.log("ERROR:", err);
-    console.log("USER:", user,"USER:");
-    console.log("INFO:", info,"INFO:");
+    console.log("USER:", user, "USER:");
+    console.log("INFO:", info, "INFO:");
     if (err || !user)
-    return res.status(401).json({ message: "Authentication failed" });
+      return res.status(401).json({ message: "Authentication failed" });
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "1d" },
-    );
+const token = jwt.sign({
+  id: user._id,
+  email: user.email,
+  username: user.username,
+  picture: user.image
+}, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
 
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    });
     // redirect للfrontend أو EJS page
-    res.redirect(`/dashboard?token=${token}`);
+    res.redirect(`/api/auth/dashboard`);
   })(req, res, next);
 };
 
@@ -141,5 +163,5 @@ module.exports = {
   loginUser,
   getLoginView,
   googleLogin,
-  googleCallback,
+  googleCallback,verifyToken
 };

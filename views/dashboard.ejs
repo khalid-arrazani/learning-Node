@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            height: 100vh;
+            padding: 0;
+            overflow-y: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #333;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .logout {
+            background: #ff4d4d;
+            border: none;
+            padding: 8px 15px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Container */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 60px);
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .card img {
+            width: 100px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #4CAF50;
+        }
+
+        .card h2 {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .card p {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .badge {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>My Dashboard</h1>
+        <a href="http://localhost:5000/api/auth/logout"><button class="logout">Logout</button></a>
+    </div>
+
+    <!-- Main -->
+    <div class="container">
+        <div class="card">
+            <img src="<%= user?.picture || user?.image %>" alt="User Image">
+
+            <h2><%= user?.username %></h2>
+            <p><%= user?.email %></p>
+
+            <div class="badge">
+                <%= user?.isAdmin ? "Admin" : "User" %>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

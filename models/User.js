@@ -4,7 +4,6 @@ const JWT = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
-//User Schema
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -14,6 +13,7 @@ const UserSchema = new mongoose.Schema({
     maxlength: 100,
     unique: true,
   },
+
   username: {
     type: String,
     required: true,
@@ -21,17 +21,31 @@ const UserSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 100,
   },
+
   password: {
     type: String,
-    required: true,
+    required: function () {
+      return !this.googleId;
+    },
     trim: true,
     minlength: 6,
   },
+
+  googleId: {
+    type: String,
+  },
+
+  image: {
+    type: String,
+    default:
+      "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg",
+  },
+
   isAdmin: {
     type: Boolean,
     default: false,
   },
-},{timestamps:true});
+}, { timestamps: true });
 
 UserSchema.methods.generateToken = function( ){
   return JWT.sign({id: this._id, isAdmin: this.isAdmin},process.env.JWT_SECRET_KEY)

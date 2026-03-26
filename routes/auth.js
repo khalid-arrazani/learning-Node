@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { RegisterUser, loginUser ,getLoginView,googleLogin,googleCallback} = require("../controller/authController");
+const { RegisterUser, loginUser ,getLoginView,googleLogin,googleCallback,verifyToken} = require("../controller/authController");
 
 const router = express.Router();
 //==============================//
@@ -30,5 +30,17 @@ router
 router.get("/google", googleLogin);
 router.get("/google/callback", googleCallback);
 //==============================//
+
+router.get("/dashboard", verifyToken, (req, res) => {
+    console.log(req.user);
+  res.render("dashboard", { user: req.user });
+});
+
+
+
+router.get("/logout", (req, res) => {
+  res.clearCookie("token"); // 👈 تمسح cookie
+  res.redirect("/api/auth/login");   // 👈 رجع ل login
+});
 
 module.exports = router;

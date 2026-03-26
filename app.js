@@ -6,6 +6,8 @@ const {notFound,errorHandler} = require('./middlewares/errors')
 const connectToDB = require("./config/db")
 const passport =require("passport")
 
+const cookieParser = require("cookie-parser");
+
 
 //connection To DataBase
 connectToDB();
@@ -18,6 +20,8 @@ app.use(express.urlencoded({ extended: true })); // to parse urlencoded data
 app.use(logger);
 app.set('view engine','ejs');
 app.use(passport.initialize());
+
+app.use(cookieParser());
 
 
 // use routes if path start with /api/books
