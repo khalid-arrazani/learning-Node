@@ -39,6 +39,8 @@ app.use("/api/users", require ("./routes/user"));
 // use routes for reset password
 app.use("/password", require("./routes/password"))
 
+// use routes for update profile
+app.use("/api/profile", require("./routes/upload"))
 
 //Error Handler Middleware
 app.use(notFound)

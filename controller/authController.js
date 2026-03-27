@@ -11,16 +11,18 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const jwt = require("jsonwebtoken");
 
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) return res.redirect("/api/auth/login");
 
   try {
-    jwt.verify(token, process.env.JWT_SECRET_KEY);
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    req.user = decoded;
-    console.log("decoded",decoded)
+
+    const user = await User.findById(decoded.id);
+
+    if (!user) return res.redirect("/api/auth/login");
+    req.user = user;
     next();
   } catch {
     res.redirect("/api/auth/login");
@@ -40,16 +42,15 @@ passport.use(
 
       try {
         let user = await User.findOne({ email: profile.emails[0].value });
-
         if (!user) {
           user = await User.create({
             googleId: profile.id,
             username: profile.displayName,
             email: profile.emails[0].value,
             image: profile.photos[0].value,
+            password: null,
           });
         }
-
         return done(null, user);
       } catch (err) {
         return done(err, null);
@@ -68,22 +69,25 @@ const googleCallback = (req, res, next) => {
     console.log("ERROR:", err);
     console.log("USER:", user, "USER:");
     console.log("INFO:", info, "INFO:");
+
     if (err || !user)
       return res.status(401).json({ message: "Authentication failed" });
 
-const token = jwt.sign({
-  id: user._id,
-  email: user.email,
-  username: user.username,
-  picture: user.image
-}, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
-
+    const token = jwt.sign(
+      {
+        id: user._id,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1d" },
+    );
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
     });
+
     // redirect للfrontend أو EJS page
+
     res.redirect(`/api/auth/dashboard`);
   })(req, res, next);
 };
@@ -163,5 +167,6 @@ module.exports = {
   loginUser,
   getLoginView,
   googleLogin,
-  googleCallback,verifyToken
+  googleCallback,
+  verifyToken,
 };

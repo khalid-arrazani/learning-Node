@@ -32,7 +32,7 @@ router.get("/google/callback", googleCallback);
 //==============================//
 
 router.get("/dashboard", verifyToken, (req, res) => {
-    console.log(req.user);
+    console.log("8888",req.user);
   res.render("dashboard", { user: req.user });
 });
 
