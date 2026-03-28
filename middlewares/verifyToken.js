@@ -5,7 +5,8 @@
 
   function verifyToken(req, res, next){
     
-    const token =req.headers.token;
+    const token =req.cookies.token;
+    
     if(token){
 
     try{
