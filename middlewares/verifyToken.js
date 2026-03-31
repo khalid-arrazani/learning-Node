@@ -49,8 +49,26 @@
     }
     })
   }
+
+// this is for upload image with token verification
+  function verifyTokenForUpload(req, res, next) {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.redirect("/api/auth/login");
+    } else {
+      try {
+        const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY);
+        req.user = decoded;
+        next();
+      } catch (error) {
+        console.log(error);
+        return res.redirect("/api/auth/login");
+      }
+    }}
+
   module.exports= {
     verifyToken,
     verifyTokenAndAuthorization,
-    verifyTokenAndAdmin
+    verifyTokenAndAdmin,
+    verifyTokenForUpload
   }

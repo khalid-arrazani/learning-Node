@@ -42,6 +42,10 @@ app.use("/password", require("./routes/password"))
 // use routes for update profile
 app.use("/api/profile", require("./routes/upload"))
 
+// use routes for update password
+app.use("/api/profile", require("./routes/editePassword"))
+
+
 //Error Handler Middleware
 app.use(notFound)
 
