@@ -1,13 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const { User } = require("../models/User");
 const JWT = require("jsonwebtoken");
-const dotenv = require("dotenv").config();
-
 const bcrypt = require("bcryptjs");
 
-const { Resend } =require( 'resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = require("../config/resond")
 
 /**
  * @desc Get Forgot Password View

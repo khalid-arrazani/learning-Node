@@ -48,6 +48,10 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  resetCode: String,
+
+  resetCodeExpire: Date
+
 }, { timestamps: true });
 
 UserSchema.methods.generateToken = function( ){

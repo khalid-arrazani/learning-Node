@@ -5,6 +5,8 @@ const { User } = require("../models/User.js");
 const { verifyTokenForUpload } = require("../middlewares/verifyToken");
 const bcrypt = require("bcryptjs");
 
+const resend = require("../config/resond")
+
 router.get("/editPassword", verifyTokenForUpload, async (req, res) => {
   const user = await User.findById(req.user.id);
   if (!user) {
@@ -54,5 +56,47 @@ router.post("/editPassword", verifyTokenForUpload, async (req, res) => {
     res.render("editPassword", { user, message });
   }
 });
+
+router.get("/forgotPassword",verifyTokenForUpload,async (req,res)=>{
+  const user = await User.findById(req.user.id)
+  if (!user){
+    return res.status(404).redirect("/api/auth/login")
+  }
+  res.render("sendEmail",{    message: null,
+    error: null})
+});
+
+router.post("/forgotPassword",verifyTokenForUpload,async (req,res)=>{
+ 
+  const user= await User.findById(req.user.id)
+
+  if(user.email===req.body.email){
+  // generate code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // hash code
+  const hashedCode = await bcrypt.hash(code, 10);
+
+  user.resetCode = hashedCode;
+  user.resetCodeExpire = Date.now() + 10 * 60 * 1000;
+  await user.save();
+  const resetPasswordEmail  = require("../mails/resetPassword.js")
+  const html = resetPasswordEmail(code)
+
+  // 📧 send email with Resend
+  await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: user.email,
+    subject: "Reset Password Code",
+    html: html
+  });
+    res.render("CodeVerify",{ message : null,error: null,email:user.email})
+  }else{
+    const error = "This email not match"
+    res.render("sendEmail",{message:null,
+    error: error})
+  }
+});
+
 
 module.exports = router;
