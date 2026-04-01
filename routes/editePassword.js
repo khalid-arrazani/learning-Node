@@ -90,13 +90,55 @@ router.post("/forgotPassword",verifyTokenForUpload,async (req,res)=>{
     subject: "Reset Password Code",
     html: html
   });
-    res.render("CodeVerify",{ message : null,error: null,email:user.email})
+    res.redirect("/api/profile/set-Code&verify")
   }else{
     const error = "This email not match"
     res.render("sendEmail",{message:null,
     error: error})
   }
 });
+
+router.get("/set-Code&verify",verifyTokenForUpload,async (req,res)=>{
+  const user = await User.findById(req.user.id)
+  if (!user){
+    return res.status(404).redirect("/api/auth/login")
+  }
+  res.render("CodeVerify",{    message: null,
+    error: null,email:user.email})
+});
+
+router.post("/set-Code&verify",verifyTokenForUpload,async (req,res)=>{
+
+  const v = await User.findById(req.user.id)
+  if (!v){
+    return res.status(404).redirect("/api/auth/login")
+  }
+
+  const { email, code } = req.body;
+  const user = await User.findOne({email});
+   
+
+  if (!user.resetCodeExpire || user.resetCodeExpire < Date.now()) {
+  return   res.render("CodeVerify",{    message: "Code expired",
+    error: null , email:user.email})
+  }
+
+  const isMatch = await bcrypt.compare(code, user.resetCode);
+
+  if (!isMatch) return res.render("CodeVerify",{ message: "Invalid code", error: null , email:user.email})
+
+   user.resetCode = null;
+  await user.save();
+
+  
+
+  
+
+  res.render("CodeVerify",{    message: null,
+    error: null,email:user.email})
+});
+
+
 
 
 module.exports = router;
