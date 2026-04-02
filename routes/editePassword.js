@@ -123,20 +123,39 @@ router.post("/set-Code&verify",verifyTokenForUpload,async (req,res)=>{
     error: null , email:user.email})
   }
 
+
   const isMatch = await bcrypt.compare(code, user.resetCode);
 
   if (!isMatch) return res.render("CodeVerify",{ message: "Invalid code", error: null , email:user.email})
 
-   user.resetCode = null;
+  user.resetCode = null;
   await user.save();
 
-  
+  res.redirect("/api/profile/resetPassword",{ message: null, error: null ,email:user.email});
+});
 
-  
-
-  res.render("CodeVerify",{    message: null,
+router.get("/resetPassword",verifyTokenForUpload,async (req,res)=>{
+  const user = await User.findById(req.user.id)
+  if (!user){
+    return res.status(404).redirect("/api/auth/login")
+  } 
+  res.render("resetPassword",{    message: null,
     error: null,email:user.email})
 });
+
+router.post("/resetPassword",verifyTokenForUpload,async (req,res)=>{
+  const user = await User.findById(req.user.id)
+  if (!user){
+    return res.status(404).redirect("/api/auth/login")
+  } 
+  const { email, newPassword, confirmPassword } = req.body;
+  if (newPassword !== confirmPassword) {
+    return res.render("resetPassword",{    message: null,
+      error: "Passwords do not match",email:user.email})
+  }
+});
+
+
 
 
 
