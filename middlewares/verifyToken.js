@@ -66,9 +66,17 @@
       }
     }}
 
+function createResetToken(userId) {
+  return JWT.sign(
+    { id: userId },
+   process.env.JWT_SECRET_KEY,
+    { expiresIn: "10m" }
+  );
+}
+
   module.exports= {
     verifyToken,
     verifyTokenAndAuthorization,
     verifyTokenAndAdmin,
-    verifyTokenForUpload
+    verifyTokenForUpload,createResetToken
   }

@@ -116,6 +116,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
     username: req.body.username,
     password: req.body.password,
   });
+
   const result = await user.save();
   const token = null;
   const { password, ...other } = result._doc;
@@ -133,22 +134,29 @@ const loginUser = asyncHandler(async (req, res) => {
   let user = await User.findOne({ email: req.body.email });
 
   if (!user) {
-    return res.status(400).json({ message: "invalid email or password" });
-  }
+   return res.render("login", { message: "invalid email or password" });
+  };
+
   const isPasswordMatch = await bcrypt.compare(
     req.body.password,
-    user.password,
+    user.password
   );
 
   if (!isPasswordMatch) {
-    return res.status(400).json({ message: "invalid email or password" });
-  }
-
+    return res.render("login" , {message: "invalid email or password" });
+  };
   const token = user.generateToken();
-
+  
   const { password, ...other } = user._doc;
 
-  res.status(200).json({ ...other, token });
+
+
+  res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    }).redirect("/api/auth/dashboard")
+
+
 });
 
 /**
@@ -159,7 +167,7 @@ const loginUser = asyncHandler(async (req, res) => {
  */
 
 getLoginView = asyncHandler((req, res) => {
-  res.render("login");
+  res.render("login", { message: null });
 });
 
 module.exports = {

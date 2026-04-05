@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { User } = require("../models/User.js");
 
-const { verifyTokenForUpload } = require("../middlewares/verifyToken");
+const { verifyTokenForUpload,createResetToken } = require("../middlewares/verifyToken");
 const bcrypt = require("bcryptjs");
+const JWT = require("jsonwebtoken");
 
 const resend = require("../config/resond")
 
@@ -107,6 +108,9 @@ router.get("/set-Code&verify",verifyTokenForUpload,async (req,res)=>{
     error: null,email:user.email})
 });
 
+
+
+
 router.post("/set-Code&verify",verifyTokenForUpload,async (req,res)=>{
 
   const v = await User.findById(req.user.id)
@@ -115,44 +119,70 @@ router.post("/set-Code&verify",verifyTokenForUpload,async (req,res)=>{
   }
 
   const { email, code } = req.body;
+
   const user = await User.findOne({email});
    
-
+  console.log(user.resetCode);
   if (!user.resetCodeExpire || user.resetCodeExpire < Date.now()) {
-  return   res.render("CodeVerify",{    message: "Code expired",
+  return   res.render("CodeVerify",{ message: "Code expired",
     error: null , email:user.email})
   }
-
-
-  const isMatch = await bcrypt.compare(code, user.resetCode);
+  if (!user.resetCode) {
+  return res.render("CodeVerify", {
+    message: "No reset code found",
+    error: null,
+    email: user.email
+  });
+}
+  const isMatch = await bcrypt.compare(code , user.resetCode);
 
   if (!isMatch) return res.render("CodeVerify",{ message: "Invalid code", error: null , email:user.email})
 
   user.resetCode = null;
   await user.save();
 
-  res.redirect("/api/profile/resetPassword",{ message: null, error: null ,email:user.email});
+  const token = createResetToken(user._id);
+
+  res.redirect(`/api/profile/resetPassword?token=${token}`);
 });
 
 router.get("/resetPassword",verifyTokenForUpload,async (req,res)=>{
-  const user = await User.findById(req.user.id)
-  if (!user){
-    return res.status(404).redirect("/api/auth/login")
-  } 
-  res.render("resetPassword",{    message: null,
-    error: null,email:user.email})
+
+  const token = req.query.token;
+  if (!token) {
+    return res.status(400).send("Token missing");
+  }
+    try {
+    const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY);
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.render("resetPassword", { userId: decoded.id , message: null, error: null ,email:user.email });
+
+  } catch (err) {
+    return res.status(400).send("Invalid or expired token");
+  }
+  
 });
 
 router.post("/resetPassword",verifyTokenForUpload,async (req,res)=>{
-  const user = await User.findById(req.user.id)
+  const user = await User.findById(req.body.userId)
   if (!user){
     return res.status(404).redirect("/api/auth/login")
   } 
   const { email, newPassword, confirmPassword } = req.body;
+
   if (newPassword !== confirmPassword) {
     return res.render("resetPassword",{    message: null,
       error: "Passwords do not match",email:user.email})
   }
+  const salt  = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(newPassword, salt);
+  await user.save();
+  
+  res.render("passChangeSeccese").status(200)
 });
 
 
