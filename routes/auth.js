@@ -1,9 +1,18 @@
 const express = require("express");
 
-const { RegisterUser, loginUser ,getLoginView,googleLogin,googleCallback,verifyToken} = require("../controller/authController");
+const { RegisterUser, loginUser ,getLoginView,googleLogin,googleCallback,verifyToken,getRegisterUserView} = require("../controller/authController");
 
 const router = express.Router();
 //==============================//
+/**
+ * @desc Register User
+ * @rout /api/auth/register
+ * @access public
+ */
+
+router.get("/register", getRegisterUserView);
+//==============================//
+// //==============================//
 /**
  * @desc Register User
  * @rout /api/auth/register
@@ -32,7 +41,6 @@ router.get("/google/callback", googleCallback);
 //==============================//
 
 router.get("/dashboard", verifyToken, (req, res) => {
-    console.log("8888",req.user);
   res.render("dashboard", { user: req.user });
 });
 

@@ -55,7 +55,7 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 UserSchema.methods.generateToken = function( ){
-  return JWT.sign({id: this._id, isAdmin: this.isAdmin},process.env.JWT_SECRET_KEY)
+  return JWT.sign({id: this._id, isAdmin: this.isAdmin},process.env.JWT_SECRET_KEY,{ expiresIn: "5000m" })
 }
 
 

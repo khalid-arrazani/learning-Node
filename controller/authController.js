@@ -93,6 +93,11 @@ const googleCallback = (req, res, next) => {
 };
 
 //=============================/* AUTH CONTROLLER * /=============================/
+//get Register User view
+
+const getRegisterUserView = asyncHandler((req, res) => {
+  res.render("register", {error: null});
+});
 
 //Register User
 const RegisterUser = asyncHandler(async (req, res) => {
@@ -146,7 +151,6 @@ const loginUser = asyncHandler(async (req, res) => {
     return res.render("login" , {message: "invalid email or password" });
   };
   const token = user.generateToken();
-  
   const { password, ...other } = user._doc;
 
 

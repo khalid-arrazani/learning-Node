@@ -169,6 +169,7 @@ router.get("/resetPassword",verifyTokenForUpload,async (req,res)=>{
 
 router.post("/resetPassword",verifyTokenForUpload,async (req,res)=>{
   const user = await User.findById(req.body.userId)
+  console.log(user);
   if (!user){
     return res.status(404).redirect("/api/auth/login")
   } 
@@ -178,10 +179,12 @@ router.post("/resetPassword",verifyTokenForUpload,async (req,res)=>{
     return res.render("resetPassword",{    message: null,
       error: "Passwords do not match",email:user.email})
   }
+
+  
   const salt  = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(newPassword, salt);
   await user.save();
-  
+
   res.render("passChangeSeccese").status(200)
 });
 
