@@ -181,4 +181,5 @@ module.exports = {
   googleLogin,
   googleCallback,
   verifyToken,
+  getRegisterUserView
 };
